@@ -1,22 +1,19 @@
 import { createContext } from './context.js';
 import { getContext } from './api/api-service.js';
 import { initialseContextState, getContextState } from './state/state-service.js';
+import { build, append } from './utils/dom-helper.js';
 
-const app = document.querySelector('#app');
-
-const loader = document.createElement('p');
-loader.innerText = 'Loading...';
-app.appendChild(loader);
+const app = append( 
+    document.querySelector('#app'), 
+    build({ type: 'p', text: 'Loading...' })
+);
 
 const init = async (simulatedDelay = 1_000) => {
     const contextData = await getContext(simulatedDelay);
     initialseContextState(contextData);
-    loader.remove();
+    app.querySelector('p').remove();
 
-    const contextState = getContextState();
-
-    const contextComponent = createContext(contextState);
-    app.appendChild(contextComponent);
+    append(app, createContext(getContextState()));
 };
 
 await init();

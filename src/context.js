@@ -1,25 +1,12 @@
 import { createPortfolio } from './portfolio.js';
+import { build, append } from './utils/dom-helper.js';
 
 export const createContext = contextData => {
-    console.log('loading index');
-
-    const component = document.createElement('div');
-
-    const contextId = document.createElement('p');
-    contextId.innerText = `Context ID: ${contextData.id}`;
-
-    const definition = document.createElement('p');
-    definition.innerText = `Definition: ${contextData.definition}`;
-
-    const riskdefault = document.createElement('p');
-    riskdefault.innerText = `Risk Default: ${contextData.isRiskDefault}`;
-
-    component.appendChild(contextId);
-    component.appendChild(definition);
-    component.appendChild(riskdefault);
-    
-    const portfolio = createPortfolio(contextData.portfolio);
-    component.appendChild(portfolio);
-
-    return component;
+    return append(
+        document.createElement('div'),
+        build({ type: 'p', text: `Context ID: ${contextData.id}` }),
+        build({ type: 'p', text: `Definition: ${contextData.definition}`}),
+        build({ type: 'p', text: `Risk Default: ${contextData.isRiskDefault}` }),
+        createPortfolio(contextData.portfolio)
+    );
 };

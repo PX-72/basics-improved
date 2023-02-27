@@ -53,24 +53,24 @@ const createQtyControl = (positionId, qty) => {
     const editButton = createButton('edit');
     const saveButton = createButton('save', false);
 
-    editButton.addEventListener('click', () => {
+    editButton.onclick = () => {
         toggleVisibility([editButton, saveButton, qtyText, qtyInput]);
         qtyInput.value = qtyText.innerText;
-    });
+    };
 
-    saveButton.addEventListener('click', () => {
+    saveButton.onclick = () => {
         toggleVisibility([editButton, saveButton, qtyText, qtyInput]);
         updatePositionQuantity(positionId, Number(qtyInput.value));
-    });
+    };
 
-    qtyInput.addEventListener('input', () => {
+    qtyInput.oninput = () => {
         if (!Number.isFinite(Number(qtyInput.value))) {
             qtyInput.value = qtyText.innerText;
             return;
         }
 
         qtyText.innerText = qtyInput.value || '0';
-    });
+    };
 
     component.appendChild(qtyText);
     component.appendChild(editButton);

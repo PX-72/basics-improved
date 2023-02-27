@@ -1,15 +1,10 @@
 import { createPosition } from './position.js';
+import { build, append } from './utils/dom-helper.js';
 
 export const createPositionList = positionListData => {
-    console.log('loading position list');
-
-    const component = document.createElement('div');
-
-    const header = document.createElement('h4');
-    header.innerText = 'Positions:';
-    component.appendChild(header);
-
-    positionListData.forEach(position => component.appendChild(createPosition(position)));
-
-    return component;
+    return append(
+        document.createElement('div'),
+        build({ type: 'h4', text: 'Positions:' }),
+        ...positionListData.map(position => createPosition(position))
+    );
 };

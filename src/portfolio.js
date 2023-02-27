@@ -1,42 +1,32 @@
 import { createPositionList } from './position-list.js';
 import { subscribeToPositionUpdates } from './state/state-service.js';
+import { build, append } from './utils/dom-helper.js';
 
 let sumPartDomRef = {};
 
 const sumPositionQty = (positions = []) => positions.reduce((sum, position) => sum + position.quantity, 0);
 
 subscribeToPositionUpdates((positions = []) => {
-    sumPartDomRef.innerText = sumPositionQty(positions);
+    sumPartDomRef.text = sumPositionQty(positions);
 });
 
+const SUM_STYLE = `
+    font-weight: bold;
+    color: red;
+`;
+
 export const createPortfolio = portfolioData => {
-    console.log('loading portfolio');
 
-    const component = document.createElement('div');
+    return append(
+        document.createElement('div'),
+        build({ type: 'p', text: `Portfolio code: ${portfolioData.code}` }),
+        build({ type: 'p', text: `Portfolio CCY: ${portfolioData.currency}`}),
 
-    const code = document.createElement('p');
-    code.innerText = `Portfolio code: ${portfolioData.code}`;
+        append(
+            build({ type: 'p', text: 'Position qty total: ' }),
+            build({ type: 'span', text: sumPositionQty(portfolioData.positions), style: SUM_STYLE })
+        ),
 
-    const ccy = document.createElement('p');
-    ccy.innerText = `Portfolio CCY: ${portfolioData.currency}`;
-
-    component.appendChild(code);
-    component.appendChild(ccy);
-
-    const positionQtySum = document.createElement('p');
-    positionQtySum.innerText = `Position qty total: `;
-
-    const sumPart = document.createElement('span');
-    sumPart.style.fontWeight = 'bold';
-    sumPart.style.color = 'red';
-    sumPart.innerText = sumPositionQty(portfolioData.positions);
-    sumPartDomRef = sumPart;
-    positionQtySum.appendChild(sumPart);
-
-    component.appendChild(positionQtySum);
-
-    const positionList = createPositionList(portfolioData.positions);
-    component.appendChild(positionList);
-
-    return component;
+        createPositionList(portfolioData.positions)
+    );
 };
