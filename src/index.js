@@ -5,7 +5,7 @@ import { build, append } from './utils/dom-helper.js';
 
 const app = append( 
     document.querySelector('#app'), 
-    build({ type: 'p', text: 'Loading...' })
+    build('p', { text: 'Loading...' })
 );
 
 const init = async (simulatedDelay = 1_000) => {

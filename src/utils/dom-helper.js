@@ -1,25 +1,26 @@
-export const build = ({
-    type, 
-    text = '',
-    style = '', 
-    eventType = null,
-    eventCallback = () => {}}) => {
-        if (type == null) {
-            return;
-        }
-        
-        const element = document.createElement(type);
-        if (text) element.innerText = text;
-        if (style) element.style = style;
-        if (eventCallback && eventCallback) element.addEventListener(eventType, () => eventCallback(element));
+export const build = (type, options = {}) => {
+    const {
+        text,
+        style = {}, 
+        eventType,
+        eventCallback
+    } = options;
 
-        return element;
+    const element = document.createElement(type);
+    if (text) element.innerText = text;
+
+    for (const [key, value] of Object.entries(style)) {
+        element.style[key] = value;
+    }
+
+    if (eventType && eventCallback) {
+        element.addEventListener(eventType, () => eventCallback(element));
+    }
+
+    return element;
 };
 
 export const append = (parent, ...children) => {
-    for (const childElement of children) {
-        parent.appendChild(childElement);
-    }
-
+    for (const childElement of children) parent.appendChild(childElement);
     return parent;
-} 
+};
