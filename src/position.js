@@ -1,103 +1,84 @@
-import { updatePositionQuantity } from './state/state-service.js';
+import { build, append, toggleVisibility } from './utils/dom-helper.js';
 
-const toggleVisibility = (elements = [], visibleStyle = 'inline-block') => {
-    elements.forEach(element => {
-        element.style.display = element.style.display === 'none' ? visibleStyle : 'none';
+const CONTAINER_STYLE = {
+    margin: '0.8rem',
+    borderTop: '1px solid #336',
+    paddingTop: '0.4rem'
+};
+
+const SUM_CONTAINER_STYLE = {
+    display: 'flex'
+};
+
+const BUTTON_STYLE = {
+    marginLeft: '0.5rem',
+    cursor: 'pointer',
+    dispay: 'inline-block'
+};
+
+const INPUT_STYLE = {
+    marginLeft: '0.5rem',
+    width: '3rem',
+    dispay: 'inline-block'
+};
+
+const TEXT_BLOCK_STYLE = {
+    marginLeft: '0.5rem'
+};
+
+export const createPosition = (positionData, posQtyChanged) => {
+    const { positionId, insightId, quantity } = positionData;
+
+    const qtyText = build('span', { 
+        text: quantity, 
+        style: TEXT_BLOCK_STYLE 
     });
-};
 
-const createButton = (label, show = true) => {
-    const button = document.createElement('button');
-    button.innerText = label;
-    button.style.marginLeft = '0.5rem';
-    button.style.cursor = 'pointer';
-    button.style.display = show ? 'inline-block' : 'none';
+    const qtyInput = build('input', {
+        attributes: { value: quantity, type: 'text' }, 
+        style: INPUT_STYLE, 
+        visible: false, 
+        eventType: 'input', 
+        eventCallback: () => {
+            if (!Number.isFinite(Number(qtyInput.value))) {
+                qtyInput.value = qtyText.innerText;
+                return;
+            }
 
-    return button;
-};
+            qtyText.innerText = qtyInput.value || '0';
+        } 
+    });
 
-const createQtyTextInput = (qty = '') => {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = qty;
-    input.style.marginLeft = '0.5rem';
-    input.style.width = '3rem';
-    input.style.display = 'none';
-
-    return input;
-};
-
-const createQtyText = qty => {
-    const span = document.createElement('span');
-    span.style.marginLeft = '0.5rem';
-    span.innerText = qty;
-
-    return span;
-};
-
-const createQtyLabel = () => {
-    const span = document.createElement('span');
-    span.innerText = 'Quantity: ';
-
-    return span;
-};
-
-const createQtyControl = (positionId, qty) => {
-    const component = document.createElement('div');
-    component.style.display = 'flex';
-    
-    component.appendChild(createQtyLabel());
-
-    const qtyText = createQtyText(qty);
-    const qtyInput = createQtyTextInput(qty);
-    const editButton = createButton('edit');
-    const saveButton = createButton('save', false);
-
-    editButton.onclick = () => {
-        toggleVisibility([editButton, saveButton, qtyText, qtyInput]);
-        qtyInput.value = qtyText.innerText;
-    };
-
-    saveButton.onclick = () => {
-        toggleVisibility([editButton, saveButton, qtyText, qtyInput]);
-        updatePositionQuantity(positionId, Number(qtyInput.value));
-    };
-
-    qtyInput.oninput = () => {
-        if (!Number.isFinite(Number(qtyInput.value))) {
+    const editButton = build('button', {
+        text: 'edit', 
+        style: BUTTON_STYLE, 
+        eventType: 'click', 
+        eventCallback: () => {
+            toggleVisibility([editButton, saveButton, qtyText, qtyInput], 'inline-block');
             qtyInput.value = qtyText.innerText;
-            return;
+        } 
+    });
+
+    const saveButton = build('button', {
+        text: 'save', 
+        visible: false, 
+        style: BUTTON_STYLE, 
+        eventType: 'click', 
+        eventCallback: () => {
+            toggleVisibility([editButton, saveButton, qtyText, qtyInput], 'inline-block');
+            posQtyChanged(positionId, Number(qtyInput.value));
         }
+    });
 
-        qtyText.innerText = qtyInput.value || '0';
-    };
-
-    component.appendChild(qtyText);
-    component.appendChild(editButton);
-    component.appendChild(qtyInput);
-    component.appendChild(saveButton);
-
-    return component;
-};
-
-export const createPosition = positionData => {
-    console.log(`loading position: ${positionData.positionId}`);
-
-    const component = document.createElement('div');
-    component.style.margin = '0.8rem';
-    component.style.borderTop = '1px solid #336';
-    component.style.paddingTop = '0.4rem';
-
-    const positionId = document.createElement('p');
-    positionId.innerText = `Position ID: ${positionData.positionId}`;
-    component.appendChild(positionId);
-
-    const insightId = document.createElement('p');
-    insightId.innerText = `Insight ID: ${positionData.insightId}`;
-    component.appendChild(insightId);
-
-    const quantity = createQtyControl(positionData.positionId, positionData.quantity);
-    component.appendChild(quantity);
-
-    return component;
+    return append(
+        build('div', { style: CONTAINER_STYLE }),
+        build('p', { text: `Position ID: ${positionId}` }),
+        build('p', { text: `Insight ID: ${insightId}` }),
+        build('div', { style: SUM_CONTAINER_STYLE }),
+        build('span', { text: 'Quantity: ' }),
+        qtyText,
+        qtyInput,
+        editButton,
+        saveButton
+    );
 };
